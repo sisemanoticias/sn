@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5">
+    <title>Sisema Notícias - Edições</title>
+    <link rel="icon" href="https://github.com/sisemanoticias/sn/blob/main/Sisema.png?raw=true" type="image/png">
+    <meta property="og:title" content="Notícias Semanais Sobre Questões Ambientais">
+    <meta property="og:image" content="https://github.com/sisemanoticias/sn/blob/main/Sisema.png?raw=true">
+    <meta property="og:url" content="https://sisemanoticias.github.io/sn/">
+    <meta property="og:type" content="website">
+    <style>
+        body {
+            font-family: Calibri;
+            margin: 20px;
+            font-size: 18px;
+            background: radial-gradient(circle at center, 
+            rgba(0, 100, 0, 0.3),  /* Verde escuro */
+            rgba(34, 139, 34, 0.5), /* Verde floresta */
+            rgba(50, 205, 50, 0.5), /* Verde limão */
+            rgba(144, 238, 144, 0.5)); /* Verde claro */
+            background-size: 200% 200%;
+            animation: gradient 15s ease infinite;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+        h1 {
+            text-align: center;
+        }
+        .introduction {
+            border: none;
+            padding: 5px;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            text-align: justify;
+        }
+        .selection-container {
+            margin-top: 30px;
+            border: 1px solid #000000;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .selection-container select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 1px solid #D2691E;
+            background-color: #ffffff;
+            color: #333333;
+        }
+        .selection-container select:focus {
+            outline: none;
+            border-color: #499fdb;
+        }
+        @keyframes gradient {
+            0% { background-position: 0% 0%; }
+            50% { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <center>
+    <h2>Acesse as mais recentes edições do Sisema Notícias</h2>
+    </center>
+    <div class="introduction">
+        <p>Clique na caixa de seleção abaixo e escolha a edição desejada para conferir as notícias do período.</p>
+        </div>
+    <div class="selection-container">
+        <label for="pageSelect">Escolha um teste:</label>
+        <select id="pageSelect" onchange="navigateToPage()">
+            <option value="">-- Selecione --</option>
+            <option value="425.html">Sisema Notícias 425</option>
+            <option value="https://sisemanoticias.my.canva.site/sisema-not-cias-424">Sisema Notícias 424</option>                     
+        </select>
+    </div>
+</div>
+
+<script>
+    function navigateToPage() {
+        const select = document.getElementById('pageSelect');
+        const selectedValue = select.value;
+        if (selectedValue) {
+            window.location.href = selectedValue;
+        }
+    }
+</script>
+</body>
+</html>
