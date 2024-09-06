@@ -1,154 +1,166 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin e Editor de Página</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background-color: #f4f4f9;
-    }
-    .login-box, .editor-container {
-      display: none;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      text-align: center;
-    }
-    .login-box.active, .editor-container.active {
-      display: flex;
-    }
-    .login-box {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    input[type="password"], button {
-      padding: 10px;
-      margin-top: 10px;
-      font-size: 16px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-    .editable {
-      margin: 10px 0;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background-color: white;
-    }
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-    }
-    .edit-container {
-      margin-bottom: 15px;
-    }
-    #editor {
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+    <style>
+        /* Estilo para a página de login */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .login-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estilo para a página de edição */
+        .editor-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        input[type="text"], input[type="url"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .editable {
+            position: relative;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .editable textarea {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: calc(100% - 20px);
+            height: calc(100% - 20px);
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            z-index: 1;
+        }
+        .editable button {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 2;
+        }
+    </style>
 </head>
 <body>
-
-  <!-- Tela de login -->
-  <div class="login-box active" id="login">
-    <div>
-      <h2>Digite a senha</h2>
-      <input type="password" id="password" placeholder="Senha">
-      <button onclick="checkPassword()">Entrar</button>
+    <div id="login-container" style="display: block;">
+        <div class="login-container">
+            <h2>Login</h2>
+            <input type="password" id="password" placeholder="Digite a senha">
+            <button onclick="checkPassword()">Entrar</button>
+        </div>
     </div>
-  </div>
 
-  <!-- Editor de Página -->
-  <div class="editor-container" id="editor-container">
-    <div>
-      <h1>Editor de Página</h1>
-      <div id="editor"></div>
-      <button onclick="downloadHTML()">Baixar HTML</button>
+    <div id="editor-container" style="display: none;">
+        <div class="editor-container">
+            <h2>Edição do Modelo</h2>
+            <div id="editable-content"></div>
+            <button onclick="saveChanges()">Salvar Alterações</button>
+        </div>
     </div>
-  </div>
 
-  <script>
-    // Verificação da senha
-    function checkPassword() {
-      const password = document.getElementById('password').value;
-      if (password === 'jadir') {
-        document.getElementById('login').classList.remove('active');
-        document.getElementById('editor-container').classList.add('active');
-        loadModelPage();
-      } else {
-        alert('Senha incorreta!');
-      }
-    }
+    <script>
+        async function loadmodelo() {
+            const response = await fetch('modelo.html');
+            const modelo = await response.text();
+            document.getElementById('editable-content').innerHTML = modelo;
 
-    // Função para carregar e clonar o código da página "modelo"
-    function loadModelPage() {
-      const modeloHtml = `
-        <h1>Bem-vindo à Página Modelo</h1>
-        <p>Este é um parágrafo de exemplo.</p>
-        <a href="https://exemplo.com">Clique aqui</a>
-      `;
-      document.getElementById('editor').innerHTML = modeloHtml;
-      makeEditable();
-    }
+            // Adicionar campos de edição
+            const elements = document.querySelectorAll('a, p, h1, h2, h3, h4, h5, h6, span, div');
+            elements.forEach(element => {
+                const editableElement = document.createElement('div');
+                editableElement.className = 'editable';
+                editableElement.innerHTML = `
+                    <textarea>${element.innerText}</textarea>
+                    <button onclick="applyChanges(this)">Aplicar</button>
+                `;
+                element.parentNode.replaceChild(editableElement, element);
+            });
+        }
 
-    // Tornar textos e links editáveis
-    function makeEditable() {
-      const editor = document.getElementById('editor');
+        function applyChanges(button) {
+            const parent = button.parentElement;
+            const textarea = parent.querySelector('textarea');
+            const originalElement = parent.querySelector('a, p, h1, h2, h3, h4, h5, h6, span, div');
+            originalElement.innerText = textarea.value;
+            parent.replaceChild(originalElement, parent);
+        }
 
-      // Tornar textos editáveis
-      const texts = editor.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span');
-      texts.forEach(text => {
-        const input = document.createElement('textarea');
-        input.value = text.textContent;
-        input.classList.add('editable');
-        const container = document.createElement('div');
-        container.classList.add('edit-container');
-        container.appendChild(input);
-        text.parentNode.insertBefore(container, text);
-        text.remove();
-      });
+        function saveChanges() {
+            const content = document.getElementById('editable-content').innerHTML;
+            const blob = new Blob([content], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'edited-modelo.html';
+            a.click();
+        }
 
-      // Tornar links editáveis
-      const links = editor.querySelectorAll('a');
-      links.forEach(link => {
-        const linkContainer = document.createElement('div');
-        linkContainer.classList.add('edit-container');
+        function checkPassword() {
+            const password = document.getElementById('password').value;
+            if (password === 'jadir') {
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('editor-container').style.display = 'block';
+                loadmodelo();
+            } else {
+                alert('Senha incorreta!');
+            }
+        }
 
-        const linkText = document.createElement('textarea');
-        linkText.value = link.textContent;
-        linkText.classList.add('editable');
-
-        const linkURL = document.createElement('input');
-        linkURL.type = 'text';
-        linkURL.value = link.href;
-        linkURL.classList.add('editable');
-
-        linkContainer.appendChild(linkText);
-        linkContainer.appendChild(linkURL);
-        link.parentNode.insertBefore(linkContainer, link);
-        link.remove();
-      });
-    }
-
-    // Função para baixar o HTML editado
-    function downloadHTML() {
-      const editor = document.getElementById('editor');
-      const blob = new Blob([editor.innerHTML], { type: 'text/html' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'pagina-editada.html';
-      link.click();
-    }
-  </script>
-
+        window.onload = function() {
+            document.getElementById('login-container').style.display = 'block';
+            document.getElementById('editor-container').style.display = 'none';
+        };
+    </script>
 </body>
 </html>
