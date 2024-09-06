@@ -90,13 +90,13 @@
         }
 
         async function loadModelPage() {
-            // Simula o carregamento do HTML do modelo
+            // Simulando o carregamento do HTML do modelo
             const modelHTML = `
                 <h2>Exemplo de Título</h2>
                 <p>Exemplo de texto com <a href="#">link</a>.</p>
+                <p>Outro parágrafo com <a href="#">outro link</a>.</p>
+                <p>Mais um parágrafo.</p>
             `;
-            const container = document.getElementById("edit-area");
-            container.innerHTML = '';
             const parser = new DOMParser();
             const doc = parser.parseFromString(modelHTML, 'text/html');
             enableEditing(doc.body);
@@ -104,30 +104,30 @@
 
         function enableEditing(container) {
             const editArea = document.getElementById("edit-area");
+            editArea.innerHTML = ''; // Limpa conteúdo anterior
 
             container.querySelectorAll('h2, p, a').forEach((element, index) => {
                 const editItem = document.createElement('div');
                 editItem.className = 'edit-item';
 
                 let labelText = '';
-                if (element.tagName === 'H2') labelText = 'Título';
-                if (element.tagName === 'P') labelText = 'Texto';
-                if (element.tagName === 'A') labelText = 'Link';
-
-                const label = document.createElement('label');
-                label.textContent = `${labelText} ${index + 1}`;
-
                 let input;
+
                 if (element.tagName === 'A') {
+                    labelText = `Link ${index + 1}`;
                     input = document.createElement('input');
                     input.type = 'text';
                     input.value = element.href;
                     input.oninput = () => element.href = input.value;
                 } else {
+                    labelText = `Texto ${index + 1}`;
                     input = document.createElement('textarea');
                     input.value = element.textContent;
                     input.oninput = () => element.textContent = input.value;
                 }
+
+                const label = document.createElement('label');
+                label.textContent = labelText;
 
                 editItem.appendChild(label);
                 editItem.appendChild(input);
@@ -136,18 +136,19 @@
         }
 
         function downloadHTML() {
+            const editArea = document.getElementById("edit-area");
             const container = document.createElement('div');
-            loadModelPage().then(() => {
-                const htmlContent = container.innerHTML;
-                const blob = new Blob([htmlContent], { type: "text/html" });
-                const url = URL.createObjectURL(blob);
+            enableEditing(container);
 
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'pagina-editada.html';
-                a.click();
-                URL.revokeObjectURL(url);
-            });
+            const htmlContent = container.innerHTML;
+            const blob = new Blob([htmlContent], { type: "text/html" });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'pagina-editada.html';
+            a.click();
+            URL.revokeObjectURL(url);
         }
     </script>
 </body>
