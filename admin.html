@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Admin</title>
+    <style>
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div id="login-section">
+        <h1>Admin Login</h1>
+        <input type="password" id="password" placeholder="Digite a senha">
+        <button onclick="checkPassword()">Entrar</button>
+        <p id="error-message" class="hidden">Senha incorreta</p>
+    </div>
+
+    <div id="editor-section" class="hidden">
+        <h1>Editor de Página</h1>
+        <div id="fields-container"></div>
+        <button onclick="generateHTML()">Baixar Novo HTML</button>
+    </div>
+
+    <script>
+        const correctPassword = "jadir";
+        
+        function checkPassword() {
+            const enteredPassword = document.getElementById("password").value;
+            if (enteredPassword === correctPassword) {
+                document.getElementById("login-section").classList.add("hidden");
+                document.getElementById("editor-section").classList.remove("hidden");
+                fetchAndLoadModelPage();
+            } else {
+                document.getElementById("error-message").classList.remove("hidden");
+            }
+        }
+
+        async function fetchAndLoadModelPage() {
+            const response = await fetch('modelo.html');
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            generateEditFields(doc);
+        }
+
+        function generateEditFields(doc) {
+            const container = document.getElementById('fields-container');
+            const links = doc.querySelectorAll('a');
+            const texts = doc.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span');
+
+            links.forEach((link, index) => {
+                const label = document.createElement('label');
+                label.textContent = `Link ${index + 1} URL: `;
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = link.href;
+                input.oninput = () => link.href = input.value;
+                container.appendChild(label);
+                container.appendChild(input);
+                container.appendChild(document.createElement('br'));
+            });
+
+            texts.forEach((text, index) => {
+                const label = document.createElement('label');
+                label.textContent = `Texto ${index + 1}: `;
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = text.textContent;
+                input.oninput = () => text.textContent = input.value;
+                container.appendChild(label);
+                container.appendChild(input);
+                container.appendChild(document.createElement('br'));
+            });
+        }
+
+        function generateHTML() {
+            const newHtml = document.documentElement.outerHTML;
+            const blob = new Blob([newHtml], { type: 'text/html' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'novo_modelo.html';
+            link.click();
+        }
+    </script>
+</body>
+</html>
