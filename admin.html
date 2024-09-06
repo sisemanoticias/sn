@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clonador e Editor de Páginas</title>
+    <title>Clonador e Editor de Páginas Completo</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -66,6 +66,7 @@
             border: none;
             border-radius: 5px;
             width: 100%;
+            margin-bottom: 10px;
         }
         button:hover {
             background-color: #555;
@@ -74,7 +75,7 @@
 </head>
 <body>
     <div class="button-bar" style="padding: 10px; background-color: #f0f0f0;">
-        <input type="text" id="url" placeholder="modelo.html" style="width: 80%;">
+        <input type="text" id="url" placeholder="URL da página para clonar" style="width: 80%;">
         <button onclick="loadPage()">Clonar Página</button>
     </div>
 
@@ -83,33 +84,15 @@
         
         <div class="editor">
             <div class="editor-header">Editor de Conteúdo</div>
-
-            <div class="field">
-                <label for="pageTitle">Título da Página</label>
-                <input type="text" id="pageTitle" placeholder="Digite o novo título">
-            </div>
-
-            <div class="field">
-                <label for="mainText">Texto Principal</label>
-                <textarea id="mainText" rows="5" placeholder="Digite o texto principal"></textarea>
-            </div>
-
-            <div class="field">
-                <label for="imageLink">Link da Imagem</label>
-                <input type="text" id="imageLink" placeholder="Digite o novo link da imagem">
-            </div>
-
-            <div class="field">
-                <label for="pageLink">Link da Página</label>
-                <input type="text" id="pageLink" placeholder="Digite o novo link de navegação">
-            </div>
-
+            <div id="editorFields"></div>
             <button onclick="updateContent()">Atualizar Conteúdo</button>
+            <button onclick="downloadHTML()">Baixar HTML Editado</button>
         </div>
     </div>
 
     <script>
         let originalHTML = '';
+        let doc;
 
         function loadPage() {
             const url = document.getElementById('url').value;
@@ -119,54 +102,98 @@
                     originalHTML = data;
                     document.getElementById('preview').srcdoc = data;
 
-                    // Preencher os campos de edição com os valores atuais da página
+                    // Analisar e gerar campos de edição
                     const parser = new DOMParser();
-                    const doc = parser.parseFromString(data, 'text/html');
+                    doc = parser.parseFromString(data, 'text/html');
 
+                    const editorFields = document.getElementById('editorFields');
+                    editorFields.innerHTML = ''; // Limpar o editor anterior
+
+                    // Adicionar campo para título
                     const title = doc.querySelector('title') ? doc.querySelector('title').textContent : '';
-                    const mainText = doc.querySelector('p') ? doc.querySelector('p').textContent : '';
-                    const imageLink = doc.querySelector('img') ? doc.querySelector('img').src : '';
-                    const pageLink = doc.querySelector('a') ? doc.querySelector('a').href : '';
+                    addField('Título da Página', 'title', title);
 
-                    document.getElementById('pageTitle').value = title;
-                    document.getElementById('mainText').value = mainText;
-                    document.getElementById('imageLink').value = imageLink;
-                    document.getElementById('pageLink').value = pageLink;
+                    // Adicionar campos para todos os parágrafos
+                    const paragraphs = doc.querySelectorAll('p');
+                    paragraphs.forEach((p, index) => {
+                        addField(`Parágrafo ${index + 1}`, `p_${index}`, p.textContent);
+                    });
+
+                    // Adicionar campos para todas as imagens
+                    const images = doc.querySelectorAll('img');
+                    images.forEach((img, index) => {
+                        addField(`Imagem ${index + 1} (Link)`, `img_${index}`, img.src);
+                    });
+
+                    // Adicionar campos para todos os links
+                    const links = doc.querySelectorAll('a');
+                    links.forEach((link, index) => {
+                        addField(`Link ${index + 1} (URL)`, `link_${index}`, link.href);
+                    });
                 })
                 .catch(error => alert('Erro ao carregar a página: ' + error));
         }
 
-        function updateContent() {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(originalHTML, 'text/html');
+        function addField(labelText, id, value) {
+            const editorFields = document.getElementById('editorFields');
 
+            const fieldDiv = document.createElement('div');
+            fieldDiv.classList.add('field');
+
+            const label = document.createElement('label');
+            label.setAttribute('for', id);
+            label.textContent = labelText;
+            fieldDiv.appendChild(label);
+
+            const input = document.createElement('input');
+            input.setAttribute('type', 'text');
+            input.setAttribute('id', id);
+            input.setAttribute('value', value);
+            fieldDiv.appendChild(input);
+
+            editorFields.appendChild(fieldDiv);
+        }
+
+        function updateContent() {
             // Atualizar o título
-            const newTitle = document.getElementById('pageTitle').value;
+            const newTitle = document.getElementById('title').value;
             if (doc.querySelector('title')) {
                 doc.querySelector('title').textContent = newTitle;
             }
 
-            // Atualizar o texto principal
-            const newText = document.getElementById('mainText').value;
-            if (doc.querySelector('p')) {
-                doc.querySelector('p').textContent = newText;
-            }
+            // Atualizar todos os parágrafos
+            const paragraphs = doc.querySelectorAll('p');
+            paragraphs.forEach((p, index) => {
+                const newText = document.getElementById(`p_${index}`).value;
+                p.textContent = newText;
+            });
 
-            // Atualizar o link da imagem
-            const newImageLink = document.getElementById('imageLink').value;
-            if (doc.querySelector('img')) {
-                doc.querySelector('img').src = newImageLink;
-            }
+            // Atualizar todas as imagens
+            const images = doc.querySelectorAll('img');
+            images.forEach((img, index) => {
+                const newImageLink = document.getElementById(`img_${index}`).value;
+                img.src = newImageLink;
+            });
 
-            // Atualizar o link da página
-            const newPageLink = document.getElementById('pageLink').value;
-            if (doc.querySelector('a')) {
-                doc.querySelector('a').href = newPageLink;
-            }
+            // Atualizar todos os links
+            const links = doc.querySelectorAll('a');
+            links.forEach((link, index) => {
+                const newLinkHref = document.getElementById(`link_${index}`).value;
+                link.href = newLinkHref;
+            });
 
             // Atualizar a visualização
             const updatedHTML = doc.documentElement.outerHTML;
             document.getElementById('preview').srcdoc = updatedHTML;
+        }
+
+        function downloadHTML() {
+            const updatedHTML = doc.documentElement.outerHTML;
+            const blob = new Blob([updatedHTML], { type: 'text/html' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'pagina_clonada_editada.html';
+            link.click();
         }
     </script>
 </body>
