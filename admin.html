@@ -1,116 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f0f0;
-        }
-        .login-container, .editor-container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            text-align: center;
-        }
-        .login-container input, .editor-container button {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .login-container button, .editor-container button {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            background-color: #007BFF;
-            color: white;
-            cursor: pointer;
-        }
-        .editable {
-            border: 1px dashed #ccc;
-            padding: 5px;
-            margin: 5px;
-        }
-        .editable input {
-            width: 100%;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .hidden {
-            display: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor de Página</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f4f4f9;
+    }
+    .editable {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: white;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
 </head>
 <body>
-    <div id="login-container" class="login-container">
-        <input type="password" id="password" placeholder="Senha">
-        <button onclick="login()">Entrar</button>
-    </div>
+  <h1>Editor de Página</h1>
+  <div id="editor"></div>
+  <button onclick="downloadHTML()">Baixar HTML</button>
 
-    <div id="editor-container" class="editor-container hidden">
-        <h1>Admin Editor</h1>
-        <div id="model-content"></div>
-        <button onclick="saveChanges()">Salvar Alterações</button>
-    </div>
+  <script>
+    // Clonando o código da página "modelo"
+    fetch('modelo.html')
+      .then(response => response.text())
+      .then(html => {
+        // Inserir o HTML no editor e torná-lo editável
+        document.getElementById('editor').innerHTML = html;
+        makeEditable();
+      });
 
-    <script>
-        function login() {
-            const password = document.getElementById('password').value;
-            if (password === 'jadir') {
-                document.getElementById('login-container').classList.add('hidden');
-                document.getElementById('editor-container').classList.remove('hidden');
-                loadModel();
-            } else {
-                alert('Senha incorreta!');
-            }
-        }
+    // Transformar os links e textos em campos editáveis
+    function makeEditable() {
+      const editor = document.getElementById('editor');
+      const links = editor.querySelectorAll('a');
+      links.forEach(link => {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = link.href;
+        input.classList.add('editable');
+        link.parentNode.insertBefore(input, link);
+        link.remove();
+      });
+    }
 
-        function loadModel() {
-            fetch('modelo.html')
-                .then(response => response.text())
-                .then(data => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(data, 'text/html');
-                    const content = doc.body.innerHTML;
-                    document.getElementById('model-content').innerHTML = content;
-                    makeEditable();
-                });
-        }
-
-        function makeEditable() {
-            const elements = document.querySelectorAll('#model-content *');
-            elements.forEach(element => {
-                if (element.nodeName === 'A' || element.nodeName === 'P' || element.nodeName === 'DIV') {
-                    element.classList.add('editable');
-                    element.contentEditable = true;
-                }
-            });
-        }
-
-        function saveChanges() {
-            const content = document.getElementById('model-content').innerHTML;
-            const blob = new Blob([content], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'edited_model.html';
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-    </script>
+    // Função para baixar o HTML editado
+    function downloadHTML() {
+      const editor = document.getElementById('editor');
+      const blob = new Blob([editor.innerHTML], { type: 'text/html' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'pagina-editada.html';
+      link.click();
+    }
+  </script>
 </body>
 </html>
