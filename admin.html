@@ -1,65 +1,88 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Editor de Página</title>
+  <title>Admin</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background-color: #f4f4f9;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f0f0f0;
     }
-    .editable {
-      margin: 10px 0;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background-color: white;
+    .login-container, .edit-container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
-    button {
+    .edit-container {
+      display: none;
+    }
+    .edit-area {
       margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
+    }
+    .edit-field {
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
-  <h1>Editor de Página</h1>
-  <div id="editor"></div>
-  <button onclick="downloadHTML()">Baixar HTML</button>
+  <div class="login-container">
+    <input type="password" id="password" placeholder="Senha">
+    <button onclick="checkPassword()">Entrar</button>
+  </div>
+
+  <div class="edit-container">
+    <h2>Editor</h2>
+    <div class="edit-area"></div>
+    <button onclick="downloadHTML()">Download HTML</button>
+  </div>
 
   <script>
-    // Clonando o código da página "modelo"
-    fetch('modelo.html')
-      .then(response => response.text())
-      .then(html => {
-        // Inserir o HTML no editor e torná-lo editável
-        document.getElementById('editor').innerHTML = html;
-        makeEditable();
-      });
-
-    // Transformar os links e textos em campos editáveis
-    function makeEditable() {
-      const editor = document.getElementById('editor');
-      const links = editor.querySelectorAll('a');
-      links.forEach(link => {
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = link.href;
-        input.classList.add('editable');
-        link.parentNode.insertBefore(input, link);
-        link.remove();
-      });
+    function checkPassword() {
+      var password = document.getElementById("password").value;
+      if (password === "jadir") {
+        document.querySelector(".login-container").style.display = "none";
+        document.querySelector(".edit-container").style.display = "block";
+        loadTemplate();
+      } else {
+        alert("Senha incorreta!");
+      }
     }
 
-    // Função para baixar o HTML editado
+    function loadTemplate() {
+      fetch('modelo.html')
+        .then(response => response.text())
+        .then(html => {
+          var parser = new DOMParser();
+          var doc = parser.parseFromString(html, 'text/html');
+          var editArea = document.querySelector(".edit-area");
+          doc.querySelectorAll('a, p').forEach(el => {
+            var div = document.createElement('div');
+            div.classList.add('edit-field');
+            var label = document.createElement('label');
+            label.textContent = el.tagName === 'A' ? 'Link: ' : 'Texto: ';
+            div.appendChild(label);
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.value = el.textContent;
+            input.addEventListener('change', () => {
+              el.textContent = input.value;
+            });
+            div.appendChild(input);
+            editArea.appendChild(div);
+          });
+        });
+    }
+
     function downloadHTML() {
-      const editor = document.getElementById('editor');
-      const blob = new Blob([editor.innerHTML], { type: 'text/html' });
-      const link = document.createElement('a');
+      var htmlContent = document.documentElement.outerHTML;
+      var blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
+      var link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = 'pagina-editada.html';
+      link.download = "novo_modelo.html";
       link.click();
     }
   </script>
