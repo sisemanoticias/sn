@@ -30,12 +30,14 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        input[type="password"] {
+        input[type="password"], input[type="text"], textarea {
             padding: 10px;
             font-size: 16px;
             margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
         }
         button {
             padding: 10px 20px;
@@ -48,6 +50,17 @@
         }
         button:hover {
             background-color: #0056b3;
+        }
+        .edit-item {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .edit-item label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
         }
     </style>
 </head>
@@ -83,41 +96,58 @@
                 <p>Exemplo de texto com <a href="#">link</a>.</p>
             `;
             const container = document.getElementById("edit-area");
-            container.innerHTML = modelHTML;
-            enableEditing(container);
+            container.innerHTML = '';
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(modelHTML, 'text/html');
+            enableEditing(doc.body);
         }
 
         function enableEditing(container) {
-            const links = container.querySelectorAll('a');
-            const texts = container.querySelectorAll('p, h2');
+            const editArea = document.getElementById("edit-area");
 
-            links.forEach(link => {
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.value = link.href;
-                input.oninput = () => link.href = input.value;
-                container.appendChild(input);
-            });
+            container.querySelectorAll('h2, p, a').forEach((element, index) => {
+                const editItem = document.createElement('div');
+                editItem.className = 'edit-item';
 
-            texts.forEach(text => {
-                const textarea = document.createElement('textarea');
-                textarea.value = text.textContent;
-                textarea.oninput = () => text.textContent = textarea.value;
-                container.appendChild(textarea);
+                let labelText = '';
+                if (element.tagName === 'H2') labelText = 'Título';
+                if (element.tagName === 'P') labelText = 'Texto';
+                if (element.tagName === 'A') labelText = 'Link';
+
+                const label = document.createElement('label');
+                label.textContent = `${labelText} ${index + 1}`;
+
+                let input;
+                if (element.tagName === 'A') {
+                    input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = element.href;
+                    input.oninput = () => element.href = input.value;
+                } else {
+                    input = document.createElement('textarea');
+                    input.value = element.textContent;
+                    input.oninput = () => element.textContent = input.value;
+                }
+
+                editItem.appendChild(label);
+                editItem.appendChild(input);
+                editArea.appendChild(editItem);
             });
         }
 
         function downloadHTML() {
-            const container = document.getElementById("edit-area");
-            const htmlContent = container.innerHTML;
-            const blob = new Blob([htmlContent], { type: "text/html" });
-            const url = URL.createObjectURL(blob);
+            const container = document.createElement('div');
+            loadModelPage().then(() => {
+                const htmlContent = container.innerHTML;
+                const blob = new Blob([htmlContent], { type: "text/html" });
+                const url = URL.createObjectURL(blob);
 
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'pagina-editada.html';
-            a.click();
-            URL.revokeObjectURL(url);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'pagina-editada.html';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
         }
     </script>
 </body>
