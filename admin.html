@@ -1,49 +1,173 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Page</title>
-<style>
-body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-}
-
-.login-container {
-    margin-top: 20vh;
-}
-
-input {
-    padding: 10px;
-    margin-bottom: 10px;
-}
-
-button {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clonador e Editor de Páginas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+            flex: 1;
+            overflow: hidden;
+        }
+        iframe {
+            flex: 2;
+            border: none;
+            height: 100%;
+            width: 70%;
+        }
+        .editor {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            box-sizing: border-box;
+            background-color: #f4f4f4;
+            overflow-y: auto;
+        }
+        .editor-header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .field {
+            margin-bottom: 10px;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 5px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #555;
+        }
+    </style>
 </head>
 <body>
-<div class="login-container">
-    <h2>Entre com a senha para acessar:</h2>
-    <input type="password" id="password" placeholder="Senha">
-    <button onclick="login()">Entrar</button>
-</div>
-<script>
-function login() {
-    var password = document.getElementById('password').value;
-    if (password === "jadir") {
-        // Redirecionar para a página de edição
-        window.location.href = "editor.html";
-    } else {
-        alert("Senha incorreta. Tente novamente.");
-    }
-}
-</script>
+    <div class="button-bar" style="padding: 10px; background-color: #f0f0f0;">
+        <input type="text" id="url" placeholder="modelo.html" style="width: 80%;">
+        <button onclick="loadPage()">Clonar Página</button>
+    </div>
+
+    <div class="container">
+        <iframe id="preview" src=""></iframe>
+        
+        <div class="editor">
+            <div class="editor-header">Editor de Conteúdo</div>
+
+            <div class="field">
+                <label for="pageTitle">Título da Página</label>
+                <input type="text" id="pageTitle" placeholder="Digite o novo título">
+            </div>
+
+            <div class="field">
+                <label for="mainText">Texto Principal</label>
+                <textarea id="mainText" rows="5" placeholder="Digite o texto principal"></textarea>
+            </div>
+
+            <div class="field">
+                <label for="imageLink">Link da Imagem</label>
+                <input type="text" id="imageLink" placeholder="Digite o novo link da imagem">
+            </div>
+
+            <div class="field">
+                <label for="pageLink">Link da Página</label>
+                <input type="text" id="pageLink" placeholder="Digite o novo link de navegação">
+            </div>
+
+            <button onclick="updateContent()">Atualizar Conteúdo</button>
+        </div>
+    </div>
+
+    <script>
+        let originalHTML = '';
+
+        function loadPage() {
+            const url = document.getElementById('url').value;
+            fetch(url)
+                .then(response => response.text())
+                .then(data => {
+                    originalHTML = data;
+                    document.getElementById('preview').srcdoc = data;
+
+                    // Preencher os campos de edição com os valores atuais da página
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data, 'text/html');
+
+                    const title = doc.querySelector('title') ? doc.querySelector('title').textContent : '';
+                    const mainText = doc.querySelector('p') ? doc.querySelector('p').textContent : '';
+                    const imageLink = doc.querySelector('img') ? doc.querySelector('img').src : '';
+                    const pageLink = doc.querySelector('a') ? doc.querySelector('a').href : '';
+
+                    document.getElementById('pageTitle').value = title;
+                    document.getElementById('mainText').value = mainText;
+                    document.getElementById('imageLink').value = imageLink;
+                    document.getElementById('pageLink').value = pageLink;
+                })
+                .catch(error => alert('Erro ao carregar a página: ' + error));
+        }
+
+        function updateContent() {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(originalHTML, 'text/html');
+
+            // Atualizar o título
+            const newTitle = document.getElementById('pageTitle').value;
+            if (doc.querySelector('title')) {
+                doc.querySelector('title').textContent = newTitle;
+            }
+
+            // Atualizar o texto principal
+            const newText = document.getElementById('mainText').value;
+            if (doc.querySelector('p')) {
+                doc.querySelector('p').textContent = newText;
+            }
+
+            // Atualizar o link da imagem
+            const newImageLink = document.getElementById('imageLink').value;
+            if (doc.querySelector('img')) {
+                doc.querySelector('img').src = newImageLink;
+            }
+
+            // Atualizar o link da página
+            const newPageLink = document.getElementById('pageLink').value;
+            if (doc.querySelector('a')) {
+                doc.querySelector('a').href = newPageLink;
+            }
+
+            // Atualizar a visualização
+            const updatedHTML = doc.documentElement.outerHTML;
+            document.getElementById('preview').srcdoc = updatedHTML;
+        }
+    </script>
 </body>
 </html>
