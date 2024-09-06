@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clonador e Editor de Páginas Completo</title>
+    <title>Editor de Cards - Clonador de Páginas</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -75,15 +75,14 @@
 </head>
 <body>
     <div class="button-bar" style="padding: 10px; background-color: #f0f0f0;">
-        <input type="text" id="url" placeholder="URL da página para clonar" style="width: 80%;">
-        <button onclick="loadPage()">Clonar Página</button>
+        <button onclick="loadPage()">Carregar Página Modelo</button>
     </div>
 
     <div class="container">
         <iframe id="preview" src=""></iframe>
         
         <div class="editor">
-            <div class="editor-header">Editor de Conteúdo</div>
+            <div class="editor-header">Editor de Cards</div>
             <div id="editorFields"></div>
             <button onclick="updateContent()">Atualizar Conteúdo</button>
             <button onclick="downloadHTML()">Baixar HTML Editado</button>
@@ -95,40 +94,37 @@
         let doc;
 
         function loadPage() {
-            const url = document.getElementById('url').value;
+            const url = 'modelo.html';  // Carregar automaticamente a página modelo
             fetch(url)
                 .then(response => response.text())
                 .then(data => {
                     originalHTML = data;
                     document.getElementById('preview').srcdoc = data;
 
-                    // Analisar e gerar campos de edição
+                    // Analisar e gerar campos de edição para cada card
                     const parser = new DOMParser();
                     doc = parser.parseFromString(data, 'text/html');
 
                     const editorFields = document.getElementById('editorFields');
                     editorFields.innerHTML = ''; // Limpar o editor anterior
 
-                    // Adicionar campo para título
-                    const title = doc.querySelector('title') ? doc.querySelector('title').textContent : '';
-                    addField('Título da Página', 'title', title);
+                    const cards = doc.querySelectorAll('.card');
+                    cards.forEach((card, index) => {
+                        // Título do card
+                        const title = card.querySelector('h2') ? card.querySelector('h2').textContent : '';
+                        addField(`Card ${index + 1} - Título`, `card_${index}_title`, title);
 
-                    // Adicionar campos para todos os parágrafos
-                    const paragraphs = doc.querySelectorAll('p');
-                    paragraphs.forEach((p, index) => {
-                        addField(`Parágrafo ${index + 1}`, `p_${index}`, p.textContent);
-                    });
+                        // Texto do card
+                        const text = card.querySelector('p') ? card.querySelector('p').textContent : '';
+                        addField(`Card ${index + 1} - Texto`, `card_${index}_text`, text);
 
-                    // Adicionar campos para todas as imagens
-                    const images = doc.querySelectorAll('img');
-                    images.forEach((img, index) => {
-                        addField(`Imagem ${index + 1} (Link)`, `img_${index}`, img.src);
-                    });
+                        // Link do site do card
+                        const link = card.querySelector('a') ? card.querySelector('a').href : '';
+                        addField(`Card ${index + 1} - Link do Site`, `card_${index}_link`, link);
 
-                    // Adicionar campos para todos os links
-                    const links = doc.querySelectorAll('a');
-                    links.forEach((link, index) => {
-                        addField(`Link ${index + 1} (URL)`, `link_${index}`, link.href);
+                        // Link da imagem do card
+                        const img = card.querySelector('img') ? card.querySelector('img').src : '';
+                        addField(`Card ${index + 1} - Link da Imagem`, `card_${index}_img`, img);
                     });
                 })
                 .catch(error => alert('Erro ao carregar a página: ' + error));
@@ -155,31 +151,31 @@
         }
 
         function updateContent() {
-            // Atualizar o título
-            const newTitle = document.getElementById('title').value;
-            if (doc.querySelector('title')) {
-                doc.querySelector('title').textContent = newTitle;
-            }
+            const cards = doc.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                // Atualizar o título do card
+                const newTitle = document.getElementById(`card_${index}_title`).value;
+                if (card.querySelector('h2')) {
+                    card.querySelector('h2').textContent = newTitle;
+                }
 
-            // Atualizar todos os parágrafos
-            const paragraphs = doc.querySelectorAll('p');
-            paragraphs.forEach((p, index) => {
-                const newText = document.getElementById(`p_${index}`).value;
-                p.textContent = newText;
-            });
+                // Atualizar o texto do card
+                const newText = document.getElementById(`card_${index}_text`).value;
+                if (card.querySelector('p')) {
+                    card.querySelector('p').textContent = newText;
+                }
 
-            // Atualizar todas as imagens
-            const images = doc.querySelectorAll('img');
-            images.forEach((img, index) => {
-                const newImageLink = document.getElementById(`img_${index}`).value;
-                img.src = newImageLink;
-            });
+                // Atualizar o link do site do card
+                const newLink = document.getElementById(`card_${index}_link`).value;
+                if (card.querySelector('a')) {
+                    card.querySelector('a').href = newLink;
+                }
 
-            // Atualizar todos os links
-            const links = doc.querySelectorAll('a');
-            links.forEach((link, index) => {
-                const newLinkHref = document.getElementById(`link_${index}`).value;
-                link.href = newLinkHref;
+                // Atualizar o link da imagem do card
+                const newImageLink = document.getElementById(`card_${index}_img`).value;
+                if (card.querySelector('img')) {
+                    card.querySelector('img').src = newImageLink;
+                }
             });
 
             // Atualizar a visualização
