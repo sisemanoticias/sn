@@ -6,6 +6,7 @@
     <title>Página Admin</title>
     <style>
         .hidden { display: none; }
+        .editable { border: 1px dashed #007BFF; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -17,14 +18,14 @@
     </div>
 
     <div id="editor-section" class="hidden">
-        <h1>Editor de Página</h1>
-        <div id="fields-container"></div>
+        <h1>Editor de Página - Edição em Linha</h1>
+        <div id="model-container"></div>
         <button onclick="generateHTML()">Baixar Novo HTML</button>
     </div>
 
     <script>
         const correctPassword = "jadir";
-        
+
         function checkPassword() {
             const enteredPassword = document.getElementById("password").value;
             if (enteredPassword === correctPassword) {
@@ -41,41 +42,45 @@
             const html = await response.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
-            generateEditFields(doc);
+
+            // Exibe o conteúdo da página modelo no admin
+            const modelContainer = document.getElementById('model-container');
+            modelContainer.innerHTML = doc.body.innerHTML;
+
+            // Torna os elementos editáveis (inline editing)
+            makeElementsEditable(doc);
         }
 
-        function generateEditFields(doc) {
-            const container = document.getElementById('fields-container');
-            const links = doc.querySelectorAll('a');
-            const texts = doc.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span');
+        function makeElementsEditable(doc) {
+            // Seleciona todos os links e textos para edição inline
+            const container = document.getElementById('model-container');
+            const links = container.querySelectorAll('a');
+            const texts = container.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span');
 
-            links.forEach((link, index) => {
-                const label = document.createElement('label');
-                label.textContent = `Link ${index + 1} URL: `;
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.value = link.href;
-                input.oninput = () => link.href = input.value;
-                container.appendChild(label);
-                container.appendChild(input);
-                container.appendChild(document.createElement('br'));
+            links.forEach((link) => {
+                link.classList.add('editable');
+                link.contentEditable = true;
+                link.addEventListener('click', (e) => {
+                    e.preventDefault(); // Evita que o link redirecione
+                });
+                link.oninput = function () {
+                    // Atualiza o href conforme o texto editado
+                    link.setAttribute('href', link.textContent);
+                };
             });
 
-            texts.forEach((text, index) => {
-                const label = document.createElement('label');
-                label.textContent = `Texto ${index + 1}: `;
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.value = text.textContent;
-                input.oninput = () => text.textContent = input.value;
-                container.appendChild(label);
-                container.appendChild(input);
-                container.appendChild(document.createElement('br'));
+            texts.forEach((text) => {
+                text.classList.add('editable');
+                text.contentEditable = true;
+                text.oninput = function () {
+                    // Edita o texto inline diretamente
+                };
             });
         }
 
         function generateHTML() {
-            const newHtml = document.documentElement.outerHTML;
+            const container = document.getElementById('model-container');
+            const newHtml = `<html><body>${container.innerHTML}</body></html>`;
             const blob = new Blob([newHtml], { type: 'text/html' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
