@@ -71,9 +71,61 @@
         button:hover {
             background-color: #555;
         }
+        /* Estilos da tela de login */
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #dff0d8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .login-box {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .login-box h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .login-box input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .login-box button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .login-box button:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <h2>Senha de Administrador</h2>
+            <input type="password" id="passwordInput" placeholder="Digite a senha">
+            <button onclick="checkPassword()">Entrar</button>
+        </div>
+    </div>
+
     <div class="button-bar" style="padding: 10px; background-color: #f0f0f0;">
         <button onclick="loadPage()">Carregar Página Modelo</button>
     </div>
@@ -99,6 +151,7 @@
                 .then(response => response.text())
                 .then(data => {
                     originalHTML = data;
+                    document.getElementById('preview').srcdoc = data;
 
                     // Analisar e gerar campos de edição para cada card
                     const parser = new DOMParser();
@@ -121,13 +174,10 @@
                         const link = card.querySelector('a') ? card.querySelector('a').href : '';
                         addField(`Card ${index + 1} - Link do Site`, `card_${index}_link`, link);
 
-                        // Removido o campo de edição de imagem, pois elas não devem ser alteradas
-                        // const img = card.querySelector('img') ? card.querySelector('img').src : '';
-                        // addField(`Card ${index + 1} - Link da Imagem`, `card_${index}_img`, img);
+                        // Link da imagem do card
+                        const img = card.querySelector('img') ? card.querySelector('img').src : '';
+                        addField(`Card ${index + 1} - Link da Imagem`, `card_${index}_img`, img);
                     });
-
-                    // Atualizar o preview
-                    document.getElementById('preview').src = URL.createObjectURL(new Blob([data], { type: 'text/html' }));
                 })
                 .catch(error => alert('Erro ao carregar a página: ' + error));
         }
@@ -173,12 +223,16 @@
                     card.querySelector('a').href = newLink;
                 }
 
-                // Removido o trecho que atualiza as imagens para que elas não sejam alteradas
+                // Atualizar o link da imagem do card
+                const newImageLink = document.getElementById(`card_${index}_img`).value;
+                if (card.querySelector('img')) {
+                    card.querySelector('img').src = newImageLink;
+                }
             });
 
             // Atualizar a visualização
             const updatedHTML = doc.documentElement.outerHTML;
-            document.getElementById('preview').src = URL.createObjectURL(new Blob([updatedHTML], { type: 'text/html' }));
+            document.getElementById('preview').srcdoc = updatedHTML;
         }
 
         function downloadHTML() {
@@ -188,6 +242,16 @@
             link.href = URL.createObjectURL(blob);
             link.download = 'pagina_clonada_editada.html';
             link.click();
+        }
+
+        // Função de verificação da senha
+        function checkPassword() {
+            const password = document.getElementById('passwordInput').value;
+            if (password === 'admin123') {
+                document.getElementById('loginScreen').style.display = 'none'; // Oculta a tela de login
+            } else {
+                alert('Senha incorreta!');
+            }
         }
     </script>
 </body>
