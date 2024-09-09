@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload de Arquivos para o GitHub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+        }
+        input, button {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Upload de Arquivo para GitHub</h2>
+
+    <form id="upload-form">
+        <input type="file" id="file-input" /><br>
+        <button type="button" id="upload-button">Upload</button>
+    </form>
+
+    <div id="status"></div>
+
+    <script>
+        document.getElementById('upload-button').addEventListener('click', async function() {
+            const fileInput = document.getElementById('file-input');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Por favor, selecione um arquivo!');
+                return;
+            }
+
+            const reader = new FileReader();
+            
+            reader.onload = async function(e) {
+                const content = btoa(e.target.result); // Encode para base64
+
+                const repoOwner = 'sisemanoticias'; // Substitua pelo seu usuário ou organização
+                const repoName = 'sn'; // Substitua pelo nome do seu repositório
+                const filePath = file.name; // O nome do arquivo no GitHub será o mesmo que no upload
+
+                const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
+
+                const token = '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'; // Substitua com seu token do GitHub
+
+                const commitMessage = `Adicionando o arquivo ${file.name}`;
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: commitMessage,
+                            content: content
+                        })
+                    });
+
+                    if (response.ok) {
+                        document.getElementById('status').innerText = 'Upload realizado com sucesso!';
+                    } else {
+                        const errorData = await response.json();
+                        document.getElementById('status').innerText = `Erro: ${errorData.message}`;
+                    }
+                } catch (error) {
+                    document.getElementById('status').innerText = 'Ocorreu um erro ao fazer o upload.';
+                }
+            };
+
+            reader.readAsBinaryString(file);
+        });
+    </script>
+
+</body>
+</html>
