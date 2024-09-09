@@ -142,13 +142,6 @@
             <button onclick="updateContent()">Atualizar Conteúdo</button>
             <button onclick="downloadHTML()">Baixar HTML Editado</button>
             
-            <!-- Campo de upload para o GitHub -->
-            <div class="field">
-                <label for="fileInput">Upload de arquivo para o GitHub:</label>
-                <input type="file" id="fileInput" />
-            </div>
-            <button onclick="uploadFileToGithub()">Enviar para o GitHub</button>
-            <p id="status"></p>
         </div>
     </div>
 
@@ -252,53 +245,6 @@
                 document.getElementById('loginScreen').style.display = 'none'; // Oculta a tela de login
             } else {
                 alert('Senha incorreta!');
-            }
-        }
-
-        // Função para capturar e fazer o upload do arquivo para o GitHub
-async function uploadFileToGithub() {
-    const fileInput = document.getElementById('fileInput');
-    const file = fileInput.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = async function (event) {
-            const fileContent = event.target.result.split(',')[1]; // Get base64 content
-            const fileName = file.name;
-
-            // Function to upload to GitHub
-            await uploadToGithub(fileContent, fileName);
-        };
-        reader.readAsDataURL(file); // Read file as Data URL
-    } else {
-        alert('Por favor, selecione um arquivo.');
-    }
-}
-
-        // Função para enviar arquivo para o GitHub usando a API
-        async function uploadToGithub(fileContent, fileName, branch = 'main') {
-            const GITHUB_API_URL = `https://api.github.com/repos/sisemanoticias/sn/contents/${fileName}`;
-            const TOKEN = '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'; // Substitua aqui pelo seu token
-
-            const base64Content = btoa(fileContent);
-
-            const response = await fetch(GITHUB_API_URL, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: `Adicionando arquivo ${fileName}`,
-                    content: base64Content,
-                    branch: branch
-                })
-            });
-
-            const data = await response.json();
-            if (response.ok) {
-                document.getElementById('status').textContent = 'Arquivo enviado com sucesso!';
-            } else {
-                document.getElementById('status').textContent = `Falha ao enviar o arquivo: ${data.message}`;
             }
         }
 
