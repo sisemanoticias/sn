@@ -136,27 +136,36 @@ h1, h2, h3, h4, h5, h6, p, a, li, span, div {
             text-align: center;
         }
 
-        .grid-4 {
-            display: grid;
-            gap: 20px;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            max-width: 100%; /* Limita a largura total para uma boa distribuição */
-            margin: 0 auto; /* Centraliza o grid dentro do container */
-            width: 100%;
-            
-        }
+.grid-4 {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(4, 1fr); /* Quatro colunas no desktop */
+    width: 100%;
+}
 
+@media (max-width: 768px) {
+    .grid-4 {
+        grid-template-columns: repeat(2, 1fr); /* Duas colunas em tablets */
+    }
+}
+
+@media (max-width: 480px) {
+    .grid-4 {
+        grid-template-columns: 1fr; /* Uma coluna em dispositivos móveis */
+    }
+}
+
+            
 .grid-3 {
     display: grid;
     gap: 20px;
-    grid-template-columns: repeat(3, 1fr); /* Mantém três colunas */
-    justify-content: center; /* Centraliza o conteúdo no grid */
-    width: 100%; /* Garante que a largura ocupe o espaço dentro da margem */
-    margin-bottom: 0px;
+    grid-template-columns: repeat(3, 1fr); /* Três colunas no desktop */
+    width: 100%;
 }
+
 @media (max-width: 768px) {
     .grid-3 {
-        grid-template-columns: repeat(2, 1fr); /* Duas colunas em tablets menores */
+        grid-template-columns: repeat(2, 1fr); /* Duas colunas em tablets */
     }
 }
 
@@ -165,6 +174,7 @@ h1, h2, h3, h4, h5, h6, p, a, li, span, div {
         grid-template-columns: 1fr; /* Uma coluna em dispositivos móveis */
     }
 }
+
 
         .separador {
             display: block;
@@ -350,7 +360,7 @@ h1, h2, h3, h4, h5, h6, p, a, li, span, div {
 
     <div class="container">
         <!-- Destaque -->
-        <a href="http://www.ief.mg.gov.br/noticias/4086-homenagens-e-atividades-a-populacao-marcam-celebracao-de-15-anos-do-monumento-gruta-rei-do-mato" class="card destaque full-card" target="_blank">
+        <a href="https://www.ief.mg.gov.br/noticias/4086-homenagens-e-atividades-a-populacao-marcam-celebracao-de-15-anos-do-monumento-gruta-rei-do-mato" class="card destaque full-card" target="_blank">
             <div class="full-card-content">
                 <img src="https://www.ief.mg.gov.br/images/stories/2024/MAT%C3%89RIAS/AGOSTO/WhatsApp_Image_2024-08-26_at_07.44.04_2.jpeg" alt="Destaque">
                 <div class="full-card-content-right destaque-texto">
@@ -362,28 +372,28 @@ h1, h2, h3, h4, h5, h6, p, a, li, span, div {
 
         <!-- Notícias -->
         <div class="grid-4">
-            <a href="http://www.meioambiente.mg.gov.br/noticias/6354-acoes-de-monitoramento-na-seguranca-de-barragens-em-minas-gerais-possibilitaram-a-reducao-de-nivel-de-emergencia-de-barragem-da-vale-em-barao-de-cocais" class="card noticia1" target="_blank">
+            <a href="https://www.meioambiente.mg.gov.br/noticias/6354-acoes-de-monitoramento-na-seguranca-de-barragens-em-minas-gerais-possibilitaram-a-reducao-de-nivel-de-emergencia-de-barragem-da-vale-em-barao-de-cocais" class="card noticia1" target="_blank">
                 <img src="https://www.meioambiente.mg.gov.br/images/stories/2024/MATERIAS/AGOSTO/WhatsApp_Image_2024-08-28_at_08.07.23_1.jpg" alt="Notícia 1">
                 <div class="card-content">
                     <h2>GESTÃO BARRAGENS</h2>
                     <p>Ações de monitoramento na segurança de barragens em Minas Gerais possibilitaram a redução de nível de emergência de Barragem da Vale em Barão de Cocais</p>
                 </div>
             </a>
-            <a href="http://www.meioambiente.mg.gov.br/noticias/6352-comissoes-do-sisema-apresentam-novo-codigo-de-etica-para-servidores-do-meio-ambiente" class="card noticia2" target="_blank">
+            <a href="https://www.meioambiente.mg.gov.br/noticias/6352-comissoes-do-sisema-apresentam-novo-codigo-de-etica-para-servidores-do-meio-ambiente" class="card noticia2" target="_blank">
                 <img src="https://www.meioambiente.mg.gov.br/images/stories/2024/MATERIAS/JULHO/Etica_MAT.jpg" alt="Notícia 2">
                 <div class="card-content">
                     <h2>ÉTICA</h2>
                     <p>Comissões do Sisema apresentam novo código de ética para servidores do Meio Ambiente</p>
                 </div>
             </a>
-            <a href="http://www.ief.mg.gov.br/noticias/4085-guardioes-da-natureza-brigadistas-atuam-de-forma-fundamental-no-combate-a-incendios-florestais" class="card noticia3" target="_blank">
+            <a href="https://www.ief.mg.gov.br/noticias/4085-guardioes-da-natureza-brigadistas-atuam-de-forma-fundamental-no-combate-a-incendios-florestais" class="card noticia3" target="_blank">
                 <img src="https://www.ief.mg.gov.br/images/stories/2024/MAT%C3%89RIAS/AGOSTO/Robson_Semad_15.jpg" alt="Notícia 3">
                 <div class="card-content">
                     <h2>INCÊNDIOS</h2>
                     <p>Guardiões da natureza, brigadistas atuam de forma fundamental no combate a incêndios florestais</p>
                 </div>
             </a>
-            <a href="http://www.igam.mg.gov.br/banco-de-noticias/3093-igam-lanca-boletim-sobre-a-revista-mineira-de-recursos-hidricos" class="card noticia4" target="_blank">
+            <a href="https://www.igam.mg.gov.br/banco-de-noticias/3093-igam-lanca-boletim-sobre-a-revista-mineira-de-recursos-hidricos" class="card noticia4" target="_blank">
                 <img src="https://www.igam.mg.gov.br/images/stories/2023/MAT%C3%89RIAS/AGOSTO/RMRH_DENTRO_1.jpg" alt="Notícia 4">
                 <div class="card-content">
                     <h2>RECURSOS HÍDRICOS</h2>
