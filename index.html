@@ -57,8 +57,10 @@
             border-color: #499fdb;
         }
         img {
-            max-width: 100%;
-            height: auto;
+            display: block; /* Garante que não haverá espaço adicional ao redor */
+            max-width: 100%; /* Ajusta ao tamanho do contêiner pai */
+            height: auto; /* Mantém a proporção da imagem */
+            margin: auto; /* Centraliza horizontalmente */
         }
         @keyframes gradient {
             0% { background-position: 0% 0%; }
